@@ -1,0 +1,35 @@
+{
+  "startup_app": {
+    "name": "launch-asset-example",
+    "uuid": "launch-asset-example",
+    "url": "http://localhost:5555/index.html",
+    "defaultHeight": 600,
+    "defaultWidth": 600,
+    "autoShow": true,
+    "permissions": {
+      "ExternalWindow": {
+        "wrap": true
+      },
+      "System": {
+        "getAllExternalWindows": true,
+        "launchExternalProcess": true,
+        "readRegistryValue": true,
+        "terminateExternalProcess": true
+      }
+    }
+  },
+  "appAssets": [
+    {
+      "src": "http://localhost:5555/file_example.xltm.zip",
+      "alias": "example",
+      "target": "file_example.xltm",
+      "version": "0.1.0",
+      "mandatory": true
+    }
+  ],
+  "runtime": {
+    "arguments": "",
+    "version": "15.80.49.30"
+  },
+  "shortcut": {}
+}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>launch asset example</title>
+  </head>
+  <body>
+    <p>Version: <span id="of-version"></span></p>
+    <button onclick="launchExternalAsset('example')">
+      launch example
+    </button>
+  </body>
+  <script>
+    const ofVersion = document.getElementById("of-version");
+    function launchExternalAsset(alias) {
+      fin.System.launchExternalProcess({
+        alias: alias,
+        arguments: "",
+        listener: function (result) {
+          console.log("the exit code", result.exitCode);
+          alert("example file was exited");
+        },
+      })
+        .then((processIdentity) => {
+          console.log(processIdentity);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+    if (typeof fin !== "undefined") {
+      fin.System.getVersion()
+        .then((v) => (ofVersion.textContent = v))
+        .catch(console.error);
+    } else {
+      ofVersion.textContent = "You are probably running in a browser.";
+    }
+  </script>
+</html>
