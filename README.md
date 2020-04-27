@@ -4,6 +4,6 @@ This repo is demonstrates how to launch a manifest defined asset by it's defined
 
 ### How to use this:
 
-- Clone this repository: `git clone https://github.com/connormccafferty/launch-asset-example`
+- Clone this repository: `git clone https://github.com/connormccafferty/launch-asset-example.git`
 - Install the dependencies: `cd launch-asset-example` & `npm install`
 - Start the live-server and launch the application on it's current version: `npm start`
