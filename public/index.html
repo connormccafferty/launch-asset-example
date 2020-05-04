@@ -2,35 +2,72 @@
 <html>
   <head>
     <title>launch asset example</title>
+    <script
+      onload="fin.desktop.ExcelService.init()"
+      src="https://openfin.github.io/excel-api-example/client/fin.desktop.Excel.js"
+    ></script>
   </head>
   <body>
     <p>Version: <span id="of-version"></span></p>
-    <button onclick="launchExternalAsset('example')">
-      launch example
+    <button onclick="openWorkbook('example')">
+      open workbook
     </button>
   </body>
   <script>
     const ofVersion = document.getElementById("of-version");
-    function launchExternalAsset(alias) {
-      fin.System.launchExternalProcess({
-        alias: alias,
-        arguments: "",
-        listener: function (result) {
-          console.log("the exit code", result.exitCode);
-          alert("example file was exited");
-        },
-      })
-        .then((processIdentity) => {
-          console.log(processIdentity);
+
+    function openWorkbook(alias) {
+      if (fin.desktop.Excel) {
+        fin.System.launchExternalProcess({
+          alias: alias,
+          arguments: "",
+          listener: function (result) {
+            console.log("the exit code", result.exitCode);
+            // alert("example file was exited");
+          },
         })
-        .catch((error) => {
-          console.log(error);
-        });
+          .then(async (processIdentity) => {
+            console.log(processIdentity);
+            await fin.desktop.ExcelService.init();
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      } else {
+        return console.log("ExcelService has not been initialized.");
+      }
     }
+
     if (typeof fin !== "undefined") {
       fin.System.getVersion()
         .then((v) => (ofVersion.textContent = v))
         .catch(console.error);
+
+      (async () => {
+        await fin.desktop.ExcelService.addEventListener(
+          "excelConnected",
+          async (event) => {
+            console.log(event);
+            console.log(fin.desktop.Excel);
+
+            // the initially opened workbook will be available from getWorkbooks or getWorkbookByName
+            let wbs = await fin.desktop.Excel.getWorkbooks();
+            let wb = wbs[0];
+            console.log(wb);
+
+            // use the below listener to detect any additional workbooks opened after Excel is already running
+            // await fin.desktop.Excel.addEventListener(
+            //   "workbookAdded",
+            //   console.log
+            // );
+
+            await fin.desktop.Excel.addEventListener(
+              "workbookClosed",
+              console.log
+            );
+          }
+        );
+      })();
     } else {
       ofVersion.textContent = "You are probably running in a browser.";
     }

@@ -27,6 +27,7 @@
       "mandatory": true
     }
   ],
+  "services": [{ "name": "excel" }],
   "runtime": {
     "arguments": "",
     "version": "15.80.49.30"
