@@ -1,15 +1,22 @@
-fin.desktop.main(() => {
+fin.desktop.main(async () => {
   let excelInstance;
 
-  function initializeExcelEvents() {
-    fin.desktop.ExcelService.addEventListener(
-      "excelConnected",
-      onExcelConnected
-    );
-    fin.desktop.ExcelService.addEventListener(
-      "excelDisconnected",
-      onExcelDisconnected
-    );
+  async function initializeExcelEvents() {
+    return new Promise((resolve, reject) => {
+      try {
+        fin.desktop.ExcelService.addEventListener(
+          "excelConnected",
+          onExcelConnected
+        );
+        fin.desktop.ExcelService.addEventListener(
+          "excelDisconnected",
+          onExcelDisconnected
+        );
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
+    });
   }
 
   function checkConnectionStatus() {
@@ -24,6 +31,7 @@ fin.desktop.main(() => {
   }
 
   function onExcelConnected(data) {
+    console.log(data);
     if (excelInstance) {
       return;
     }
@@ -38,6 +46,7 @@ fin.desktop.main(() => {
     excelInstance.addEventListener("workbookClosed", console.log);
     // excelInstance.addEventListener("workbookSaved", console.log);
 
+    // alternative way to access the asset workbook if LEP / run isn't called on Excel first
     // fin.desktop.Excel.getWorkbooks((workbooks) => {
     //   console.log(workbooks[0]);
     // });
@@ -60,9 +69,7 @@ fin.desktop.main(() => {
     checkConnectionStatus();
   }
 
-  initializeExcelEvents();
-
-  fin.desktop.ExcelService.init()
-    .then(checkConnectionStatus)
-    .catch((err) => console.error(err));
+  await initializeExcelEvents();
+  await fin.desktop.ExcelService.init();
+  checkConnectionStatus();
 });

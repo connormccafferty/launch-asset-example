@@ -8,7 +8,10 @@
     "autoShow": true,
     "permissions": {
       "ExternalWindow": {
-        "wrap": false
+        "wrap": true
+      },
+      "ExternalApplication": {
+        "wrap": true
       },
       "System": {
         "getAllExternalWindows": false,

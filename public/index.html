@@ -7,26 +7,69 @@
   </head>
   <body>
     <p>Version: <span id="of-version"></span></p>
-    <button onclick="openWorkbookFromAsset('example', 'file_example.xltm')">
+    <button id="launch">
       launch file_example.xltm
     </button>
   </body>
   <script>
-    function openWorkbookFromAsset(alias, fileName) {
-      // Note for the workbookOpened to fire Excel must be launched w/ fin.desktop.Excel.run
-      // once we launch Excel we can launchExternalProcess on our asset to trigger the event
-      fin.desktop.Excel.run();
-      return new Promise((resolve, reject) => {
-        fin.System.launchExternalProcess({
-          alias,
-          target: fileName,
-        })
-          .then(resolve)
-          .catch((err) => reject(err));
+    async function launchExcel() {
+      if (fin.desktop.Excel) {
+        let connected = await fin.desktop.Excel.getConnectionStatus();
+        let runPromise = connected
+          ? Promise.resolve()
+          : new Promise((resolve, reject) => {
+              fin.desktop.System.launchExternalProcess(
+                {
+                  target: "excel",
+                  uuid: fin.desktop.Excel.connectionUuid,
+                },
+                resolve,
+                reject
+              );
+            });
+        return runPromise;
+      }
+    }
+
+    async function openWorkbookFromAsset(alias, target) {
+      launchExcel().then(async () => {
+        let onConnected;
+        await fin.desktop.ExcelService.addEventListener(
+          "excelConnected",
+          (onConnected = () => {
+            fin.desktop.ExcelService.removeEventListener(
+              "excelConnected",
+              onConnected
+            );
+            fin.System.launchExternalProcess({
+              alias,
+              target,
+            });
+          })
+        );
       });
     }
 
+    const debounce = (func, delay) => {
+      let debounceTimer;
+      return function () {
+        const context = this;
+        const args = arguments;
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => func.apply(context, args), delay);
+      };
+    };
+
     const ofVersion = document.getElementById("of-version");
+    const launchBtn = document.getElementById("launch");
+
+    launchBtn.addEventListener(
+      "click",
+      debounce(async function (e) {
+        e.preventDefault();
+        await openWorkbookFromAsset("example", "file_example.xltm");
+      }, 250)
+    );
 
     if (typeof fin !== "undefined") {
       fin.System.getVersion()
